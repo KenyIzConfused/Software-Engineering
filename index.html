@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company 1 - Optimization Software</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #064e3b 0%, #10b981 30%, #a7f3d0 60%, #ffffff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .leaf {
+            position: fixed;
+            top: -10px;
+            z-index: 1;
+            pointer-events: none;
+            animation: fall linear infinite;
+            opacity: 0.7;
+        }
+
+        .leaf:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; font-size: 1.5rem; }
+        .leaf:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; font-size: 1.2rem; }
+        .leaf:nth-child(3) { left: 40%; animation-duration: 10s; animation-delay: 4s; font-size: 1.8rem; }
+        .leaf:nth-child(4) { left: 55%; animation-duration: 14s; animation-delay: 1s; font-size: 1.3rem; }
+        .leaf:nth-child(5) { left: 70%; animation-duration: 11s; animation-delay: 3s; font-size: 1.6rem; }
+        .leaf:nth-child(6) { left: 85%; animation-duration: 13s; animation-delay: 5s; font-size: 1.4rem; }
+        .leaf:nth-child(7) { left: 15%; animation-duration: 16s; animation-delay: 6s; font-size: 1.1rem; }
+        .leaf:nth-child(8) { left: 60%; animation-duration: 9s; animation-delay: 2.5s; font-size: 1.7rem; }
+        .leaf:nth-child(9) { left: 30%; animation-duration: 12s; animation-delay: 7s; font-size: 1.2rem; }
+        .leaf:nth-child(10) { left: 90%; animation-duration: 14s; animation-delay: 0.5s; font-size: 1.5rem; }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) translateX(0);
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .glass-card {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .feature-card {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, #064e3b 0%, #10b981 40%, #a7f3d0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #loading-screen.hidden-loading {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            min-width: 280px;
+            max-width: 400px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        .toast.info { background: #2563eb; }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="relative">
+    <div id="loading-screen">
+        <div class="loader mb-6"></div>
+        <h2 class="text-white text-2xl font-semibold tracking-wide">Company 1</h2>
+        <p class="text-emerald-100 mt-2 text-sm">Loading optimization engine...</p>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <div class="leaves-container fixed inset-0 pointer-events-none z-0">
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-white text-shadow tracking-wide">Company 1</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="auth.html" class="btn-secondary px-5 py-2 rounded-full text-white font-medium text-sm inline-block">
+                        Sign In
+                    </a>
+                    <a href="auth.html" class="btn-primary px-5 py-2 rounded-full text-white font-medium text-sm inline-block">
+                        Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-16">
+        <section class="min-h-screen flex items-center justify-center px-4">
+            <div class="max-w-6xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 text-shadow leading-tight">
+                    <span id="greeting"></span><br>
+                    <span class="text-emerald-200">Framerates</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-10 max-w-3xl mx-auto text-shadow leading-relaxed">
+                    Company 1 delivers cutting-edge optimization software that transforms your system performance. 
+                    Experience smoother gameplay, faster rendering, and seamless workflows.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+                    <button class="btn-primary px-8 py-4 rounded-full text-white font-semibold text-lg shadow-xl">
+                        Get Started
+                    </button>
+                    <button class="btn-secondary px-8 py-4 rounded-full text-white font-semibold text-lg">
+                        Watch Demo
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div class="feature-card rounded-2xl p-6">
+                        <div class="text-4xl mb-4">⚡</div>
+                        <h3 class="text-xl font-bold text-emerald-900 mb-2">Lightning Fast</h3>
+                        <p class="text-emerald-800">Optimize your system for maximum performance with our intelligent algorithms.</p>
+                    </div>
+                    <div class="feature-card rounded-2xl p-6">
+                        <div class="text-4xl mb-4">🛠️</div>
+                        <h3 class="text-xl font-bold text-emerald-900 mb-2">Fully Customizable</h3>
+                        <p class="text-emerald-800">Sign in to edit and configure every aspect of the software to match your needs.</p>
+                    </div>
+                    <div class="feature-card rounded-2xl p-6">
+                        <div class="text-4xl mb-4">🎮</div>
+                        <h3 class="text-xl font-bold text-emerald-900 mb-2">Game Ready</h3>
+                        <p class="text-emerald-800">Specifically designed to boost in-game framerates and reduce stuttering.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 px-4">
+            <div class="max-w-5xl mx-auto">
+                <div class="glass-card rounded-3xl p-10 md:p-16 text-center">
+                    <h2 class="text-4xl md:text-5xl font-bold text-emerald-900 mb-6">Why Choose Company 1?</h2>
+                    <p class="text-lg text-emerald-800 mb-8 max-w-3xl mx-auto leading-relaxed">
+                        Our optimization software doesn't just improve your framerates - it adapts to your workflow. 
+                        Create an account to unlock powerful customization tools, save your preferred settings, 
+                        and join a community of power users who demand the best performance.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="auth.html" class="btn-primary px-8 py-3 rounded-full text-white font-semibold shadow-lg inline-block">
+                            Sign Up Now
+                        </a>
+                        <button class="btn-secondary px-8 py-3 rounded-full text-emerald-900 font-semibold border-emerald-900/20">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function showGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Good Evening';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            document.getElementById('greeting').textContent = `${greeting}! Boost Your`;
+        }
+
+        window.addEventListener('load', () => {
+            showGreeting();
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.classList.add('hidden-loading');
+            }, 1200);
+        });
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        function simulateLoading(button, callback) {
+            button.classList.add('btn-loading');
+            button.disabled = true;
+            setTimeout(() => {
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+                if (callback) callback();
+            }, 1500);
+        }
+
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const text = this.textContent.trim();
+                if (text === 'Sign Up' || text === 'Sign Up Now') {
+                    simulateLoading(this, () => showToast('Account created successfully! Welcome to Company 1.', 'success'));
+                } else if (text === 'Sign In') {
+                    simulateLoading(this, () => showToast('Welcome back! Redirecting to dashboard...', 'success'));
+                } else if (text === 'Get Started') {
+                    simulateLoading(this, () => showToast('Download starting... Optimize your system now!', 'info'));
+                } else if (text === 'Watch Demo') {
+                    simulateLoading(this, () => showToast('Loading demo video...', 'info'));
+                } else if (text === 'Learn More') {
+                    showToast('Loading additional information...', 'info');
+                }
+            });
+        });
+
+        window.addEventListener('error', () => {
+            showToast('Something went wrong. Please try again.', 'error');
+        });
+    </script>
+</body>
+</html>

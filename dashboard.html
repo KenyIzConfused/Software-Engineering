@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company 1 - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #064e3b 0%, #10b981 30%, #a7f3d0 60%, #ffffff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .leaf {
+            position: fixed;
+            top: -10px;
+            z-index: 1;
+            pointer-events: none;
+            animation: fall linear infinite;
+            opacity: 0.7;
+        }
+
+        .leaf:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; font-size: 1.5rem; }
+        .leaf:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; font-size: 1.2rem; }
+        .leaf:nth-child(3) { left: 40%; animation-duration: 10s; animation-delay: 4s; font-size: 1.8rem; }
+        .leaf:nth-child(4) { left: 55%; animation-duration: 14s; animation-delay: 1s; font-size: 1.3rem; }
+        .leaf:nth-child(5) { left: 70%; animation-duration: 11s; animation-delay: 3s; font-size: 1.6rem; }
+        .leaf:nth-child(6) { left: 85%; animation-duration: 13s; animation-delay: 5s; font-size: 1.4rem; }
+        .leaf:nth-child(7) { left: 15%; animation-duration: 16s; animation-delay: 6s; font-size: 1.1rem; }
+        .leaf:nth-child(8) { left: 60%; animation-duration: 9s; animation-delay: 2.5s; font-size: 1.7rem; }
+        .leaf:nth-child(9) { left: 30%; animation-duration: 12s; animation-delay: 7s; font-size: 1.2rem; }
+        .leaf:nth-child(10) { left: 90%; animation-duration: 14s; animation-delay: 0.5s; font-size: 1.5rem; }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0.8; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .glass-card {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            min-width: 280px;
+            max-width: 400px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        .toast.info { background: #2563eb; }
+
+        .stat-card {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.3);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 1s ease;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="relative">
+    <div class="leaves-container fixed inset-0 pointer-events-none z-0">
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+        <div class="leaf">🍂</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🍁</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center">
+                    <span class="text-2xl font-bold text-white text-shadow tracking-wide">Company 1</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <button id="logout-btn" class="btn-secondary px-5 py-2 rounded-full text-white font-medium text-sm">
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <main class="relative z-10 pt-24 pb-12 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div id="user-welcome" class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-3 text-shadow">
+                    Welcome back, <span id="user-name" class="text-emerald-200">User</span>!
+                </h1>
+                <p class="text-white/90 text-lg">Here's your system optimization overview.</p>
+            </div>
+
+            <div id="dashboard-loading" class="flex flex-col items-center justify-center py-20">
+                <div class="loader mb-4"></div>
+                <p class="text-white/90 text-lg">Loading your dashboard...</p>
+            </div>
+
+            <div id="dashboard-content" class="hidden space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stat-card rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-white/80 text-sm font-medium">System Status</p>
+                                <p id="system-status" class="text-2xl font-bold text-white">Optimized</p>
+                            </div>
+                            <div class="text-4xl">✅</div>
+                        </div>
+                        <p class="text-white/70 text-sm">Your system is running at peak performance.</p>
+                    </div>
+
+                    <div class="stat-card rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-white/80 text-sm font-medium">Framerate Boost</p>
+                                <p id="framerate-boost" class="text-2xl font-bold text-white">+45%</p>
+                            </div>
+                            <div class="text-4xl">🚀</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                        <p class="text-white/70 text-sm mt-2">Target: 144 FPS</p>
+                    </div>
+
+                    <div class="stat-card rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-white/80 text-sm font-medium">Optimizations</p>
+                                <p id="optimization-count" class="text-2xl font-bold text-white">12 Active</p>
+                            </div>
+                            <div class="text-4xl">⚙️</div>
+                        </div>
+                        <p class="text-white/70 text-sm">All systems operational.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 md:p-10">
+                    <h2 class="text-3xl font-bold text-white mb-6 text-shadow">Active Optimizations</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="optimizations-list">
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🎮</span>
+                                <div>
+                                    <p class="text-white font-semibold">Game Mode</p>
+                                    <p class="text-white/70 text-sm">Prioritizes game processes</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🧹</span>
+                                <div>
+                                    <p class="text-white font-semibold">Memory Cleanup</p>
+                                    <p class="text-white/70 text-sm">Frees unused RAM</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🌡️</span>
+                                <div>
+                                    <p class="text-white font-semibold">Thermal Throttle Prevention</p>
+                                    <p class="text-white/70 text-sm">Optimizes cooling curves</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🖥️</span>
+                                <div>
+                                    <p class="text-white font-semibold">Display Optimization</p>
+                                    <p class="text-white/70 text-sm">Adjusts refresh rate & scaling</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 md:p-10">
+                    <h2 class="text-3xl font-bold text-white mb-6 text-shadow">Recent Activity</h2>
+                    <div class="space-y-3" id="activity-list">
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white/10">
+                            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                            <div class="flex-1">
+                                <p class="text-white font-medium">System optimization completed</p>
+                                <p class="text-white/60 text-sm">2 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white/10">
+                            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                            <div class="flex-1">
+                                <p class="text-white font-medium">Game mode activated</p>
+                                <p class="text-white/60 text-sm">15 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white/10">
+                            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                            <div class="flex-1">
+                                <p class="text-white font-medium">Profile settings updated</p>
+                                <p class="text-white/60 text-sm">1 hour ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrHYoaRkSAky3YA4G9RPOUuYI1g-GzRDA",
+            authDomain: "testes-70b9a.firebaseapp.com",
+            projectId: "testes-70b9a",
+            storageBucket: "testes-70b9a.firebasestorage.app",
+            messagingSenderId: "93405570944",
+            appId: "1:93405570944:web:e4bcab9056e50bb99d4365",
+            measurementId: "G-1B86M430FF"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        function requireAuth() {
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Please sign in to access the dashboard.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'auth.html';
+                }, 1500);
+                return false;
+            }
+            return true;
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
+
+            document.getElementById('dashboard-loading').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.remove('hidden');
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                showToast('You have been logged out successfully.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } catch (error) {
+                showToast('Logout failed. Please try again.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
